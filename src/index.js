@@ -10,6 +10,7 @@ const session = require('express-session');
 
 //Initializations
 const app = express();
+require('./database');
 
 //Settings
 app.set('port', 3000);
@@ -34,9 +35,13 @@ app.use(session({
 //Global variables
 
 //Routes
+app.use(require('./routes/index'));
+app.use(require('./routes/notes'));
+app.use(require('./routes/users'));
 
 
 //Static Files
+app.use(express.static(path.join(__dirname, 'public')));
 
 //Server init
 app.listen(app.get('port'), () => {
