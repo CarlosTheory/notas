@@ -9,7 +9,7 @@ router.get('/notes/add', (req, res) => {
     res.render('notes/add');
 });
 
-// /notes/new-note ruta del metodo post
+// CREAR NOTA /notes/new-note ruta del metodo post
 router.post('/notes/new-note', async (req, res) => {
 
     // Destructuring -> sacar cada propiedad por separado a traves de un objeto
@@ -33,11 +33,13 @@ router.post('/notes/new-note', async (req, res) => {
     } else {
         const notaNueva = new Note({title, description});
         await notaNueva.save();
-        req.flash('success_msg', 'Nota agregada satisfactoriamente');
+        //mensaje de nota agredada satisfactoriamente
+        req.flash('success_msg', 'Nota agregada satisfactoriamente.');
         res.redirect('/notes');
     }
 });
 
+//OBTENER NOTAS
 router.get('/notes', async (req, res) => {
     //Consultar bd
     //En el curso solo se usa:
@@ -54,10 +56,12 @@ router.get('/notes/edit/:id', async (req, res) => {
     res.render('notes/edit', {note});
 });
 
+//EDITAR NOTA
 router.put('/notes/edit-note/:id', async (req, res) => {
     const { title, description } = req.body;
     //actualizar datos
-    await Note.findByIdAndUpdate(req.params.id, { title, description })
+    await Note.findByIdAndUpdate(req.params.id, { title, description });
+    req.flash('success_msg', 'Actualizada correctamente.')
     res.redirect('/notes');
 });
 
@@ -66,6 +70,7 @@ router.delete('/notes/delete/:id', async (req, res) => {
     //console.log(req.params.id);
     console.log('nota', req.params.id, 'borrada');
     await Note.findByIdAndDelete(req.params.id);
+    req.flash('success_msg', 'Nota eliminada correctamente.');
     res.redirect('/notes');
 });
 
