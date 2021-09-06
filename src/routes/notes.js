@@ -3,14 +3,15 @@ const router = require('express').Router();
 // Al tomar este modelo de dato puedo crear borrar actualizar etc
 const { discriminators } = require('../models/Note');
 const Note = require('../models/Note');
+const { isAuthenticated } = require('../helpers/auth');
 
 // /notes/add es la ruta
-router.get('/notes/add', (req, res) => {
+router.get('/notes/add', isAuthenticated, (req, res) => {
     res.render('notes/add');
 });
 
 // CREAR NOTA /notes/new-note ruta del metodo post
-router.post('/notes/new-note', async (req, res) => {
+router.post('/notes/new-note', isAuthenticated, async (req, res) => {
 
     // Destructuring -> sacar cada propiedad por separado a traves de un objeto
     const { title, description } = req.body;
@@ -32,6 +33,7 @@ router.post('/notes/new-note', async (req, res) => {
         });
     } else {
         const notaNueva = new Note({title, description});
+        notaNueva.user = req.user.id;
         await notaNueva.save();
         //mensaje de nota agredada satisfactoriamente
         req.flash('success_msg', 'Nota agregada satisfactoriamente.');
@@ -40,16 +42,16 @@ router.post('/notes/new-note', async (req, res) => {
 });
 
 //OBTENER NOTAS
-router.get('/notes', async (req, res) => {
+router.get('/notes', isAuthenticated, async (req, res) => {
     //Consultar bd
     //En el curso solo se usa:
     //const notes = await Note.find() - pero no funciona sin el .lean();
-    const notes = await Note.find().sort({date:'desc'}).lean();
+    const notes = await Note.find({user: req.user.id}).sort({date:'desc'}).lean();
     res.render('notes/all', {notes});
 });
 
 // Pasar el id de la nota a editar
-router.get('/notes/edit/:id', async (req, res) => {
+router.get('/notes/edit/:id', isAuthenticated, async (req, res) => {
     //obtener la nota desde la bd
     const note = await Note.findById(req.params.id).lean();
     //console.log("Nota recibida:", note)
@@ -57,7 +59,7 @@ router.get('/notes/edit/:id', async (req, res) => {
 });
 
 //EDITAR NOTA
-router.put('/notes/edit-note/:id', async (req, res) => {
+router.put('/notes/edit-note/:id', isAuthenticated, async (req, res) => {
     const { title, description } = req.body;
     //actualizar datos
     await Note.findByIdAndUpdate(req.params.id, { title, description });
@@ -66,7 +68,7 @@ router.put('/notes/edit-note/:id', async (req, res) => {
 });
 
 //Eliminar-Delete
-router.delete('/notes/delete/:id', async (req, res) => {
+router.delete('/notes/delete/:id', isAuthenticated, async (req, res) => {
     //console.log(req.params.id);
     console.log('nota', req.params.id, 'borrada');
     await Note.findByIdAndDelete(req.params.id);

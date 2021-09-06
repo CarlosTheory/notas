@@ -30,6 +30,7 @@ passport.use(new localStrategy({
 //Almacenar el usuario en sesion cuando se logueé, con su id
 passport.serializeUser((user, callback) => {
           //retornar, no error y  el user id
+          //console.log(user)
   callback(null, user.id);
 });
 
@@ -37,6 +38,7 @@ passport.serializeUser((user, callback) => {
 passport.deserializeUser((id, callback) => {
   // Buscar usuario por id
   User.findById(id, (err, user) => {
+    //console.log(user);
     callback(err, user);
   });
 });
